@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import connectionService from '../services/Connection'
 
 const PersonForm = ({persons, setPersons}) => {
     
@@ -10,9 +11,18 @@ const PersonForm = ({persons, setPersons}) => {
         const personObj = {
           name: newName,
           number: phoneNumber,
-          id: persons.length+1
+          // id: persons.length+1
         }
-        persons.reduce((boolean, x) => x.name === personObj.name || boolean, false) ? alert(`${newName} is already added to phonebook`) : setPersons(persons.concat(personObj))
+        const isThere = persons.reduce((boolean, x) => x.name === personObj.name || boolean, false)
+        if (isThere) {
+          if (window.confirm(`${personObj.name} is already added to phonebook, replace the old number with a new one?`)) {
+            const changedObj = persons.find(n => n.name === personObj.name)
+            const changedPerson = {...changedObj, number: personObj.number}
+            connectionService.update(changedPerson.id, changedPerson).then(r => setPersons(persons.map(x => x.id !== changedPerson.id ? x : r)))
+          }
+        } else {
+          connectionService.create(personObj).then(returnedPerson => setPersons(persons.concat(returnedPerson)))
+        }
         setNewName('')
         setPhoneNumber('')
     }
