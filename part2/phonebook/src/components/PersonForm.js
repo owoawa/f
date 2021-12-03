@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import connectionService from '../services/Connection'
 
-const PersonForm = ({persons, setPersons}) => {
+const PersonForm = ({persons, setPersons, setMessage}) => {
     
     const [newName, setNewName] = useState('')
     const [phoneNumber, setPhoneNumber] = useState('')
@@ -22,6 +22,10 @@ const PersonForm = ({persons, setPersons}) => {
           }
         } else {
           connectionService.create(personObj).then(returnedPerson => setPersons(persons.concat(returnedPerson)))
+          setMessage({message:`Added ${personObj.name}`, isIt:true})
+          setTimeout(() => {
+            setMessage({message:null,isIt:null})
+          }, 3000)
         }
         setNewName('')
         setPhoneNumber('')
